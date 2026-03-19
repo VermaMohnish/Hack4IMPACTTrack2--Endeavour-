@@ -1,4 +1,4 @@
-# Hack4IMPACTTrack2--Endeavour-
+# Hack4IMPACTTrack2-Endeavour
 
 Team name: Endeavour
 
