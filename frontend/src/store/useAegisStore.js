@@ -100,6 +100,27 @@ const useAegisStore = create((set, get) => ({
     });
   },
 
+  triggerML: async () => {
+    try {
+      const mlUrl = import.meta.env.VITE_ML_URL || "http://localhost:5000";
+      const response = await fetch(`${mlUrl}/run`, { method: "POST" });
+      if (!response.ok) throw new Error("ML Engine start failed");
+      
+      set((state) => ({
+        alerts: [{
+          id: Date.now(),
+          message: "ML Prediction Engine Triggered Successfully.",
+          time: new Date().toISOString(),
+          type: "info"
+        }, ...state.alerts]
+      }));
+      return true;
+    } catch (error) {
+      console.error("Trigger Error:", error);
+      return false;
+    }
+  },
+
   dispatchAsset: (assetId, targetSectorId) => {
     set((state) => {
       const updatedAssets = state.assets.map((a) =>
