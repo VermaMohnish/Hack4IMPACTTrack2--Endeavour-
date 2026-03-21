@@ -1,6 +1,6 @@
-import { create } from 'zustand';
-import { io } from 'socket.io-client';
-import { MOCK_SECTORS, MOCK_ASSETS, MOCK_ALERTS } from '../utils/mockData.js';
+import { create } from "zustand";
+import { io } from "socket.io-client";
+import { MOCK_SECTORS, MOCK_ASSETS, MOCK_ALERTS } from "../utils/mockData.js";
 
 const useAegisStore = create((set, get) => ({
   sectors: MOCK_SECTORS,
@@ -9,10 +9,34 @@ const useAegisStore = create((set, get) => ({
   socket: null,
   isConnected: false,
 
-  initSocket: () => {
-    if (get().socket) return; // Prevent multiple connections
+  // FIX 4: Global running state — when false, socket events are ignored
+  isRunning: true,
 
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+  // FIX 4: Toggle the running state. Also emits a log entry so user can see the action.
+  toggleRunning: () => {
+    const currentlyRunning = get().isRunning;
+    const newState = !currentlyRunning;
+
+    const statusAlert = {
+      id: Date.now(),
+      message: newState
+        ? "System monitoring RESUMED. Live intel feed is now active."
+        : "System monitoring PAUSED. Live updates are suspended.",
+      time: new Date().toISOString(),
+      type: newState ? "success" : "warning",
+    };
+
+    set((state) => ({
+      isRunning: newState,
+      alerts: [statusAlert, ...state.alerts].slice(0, 50),
+    }));
+  },
+
+  initSocket: () => {
+    if (get().socket) return;
+
+    const backendUrl =
+      import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
     const newSocket = io(backendUrl, {
       reconnectionAttempts: Infinity,
       reconnectionDelay: 2000,
@@ -27,29 +51,44 @@ const useAegisStore = create((set, get) => ({
     });
 
     const handleSignal = (severity, data, color, riskLabel, alertType) => {
+      // FIX 4: Only process incoming socket events when system is running
+      if (!get().isRunning) return;
+
       if (data && data.sector_id) {
         set((state) => {
           const updatedSectors = state.sectors.map((s) =>
-            s.id === data.sector_id ? { ...s, risk: riskLabel, color: color } : s
+            s.id === data.sector_id
+              ? { ...s, risk: riskLabel, color: color }
+              : s,
           );
-          
+
           const newAlert = {
             id: Date.now(),
-            message: data.message || `${severity} condition in Sector ${data.sector_id}`,
+            message:
+              data.message ||
+              `${severity} condition in Sector ${data.sector_id}`,
             time: new Date().toISOString(),
-            type: alertType
+            type: alertType,
           };
 
-          return { sectors: updatedSectors, alerts: [newAlert, ...state.alerts].slice(0, 50) };
+          return {
+            sectors: updatedSectors,
+            alerts: [newAlert, ...state.alerts].slice(0, 50),
+          };
         });
       }
     };
 
-    newSocket.on("Critical", (data) => handleSignal("Critical", data, "#ef4444", "High", "critical"));
-    newSocket.on("Warning",  (data) => handleSignal("Warning", data, "#eab308", "Warning", "warning"));
-    newSocket.on("Stable",   (data) => handleSignal("Stable", data, "#10b981", "Low", "info"));
+    newSocket.on("Critical", (data) =>
+      handleSignal("Critical", data, "#ef4444", "High", "critical"),
+    );
+    newSocket.on("Warning", (data) =>
+      handleSignal("Warning", data, "#eab308", "Warning", "warning"),
+    );
+    newSocket.on("Stable", (data) =>
+      handleSignal("Stable", data, "#10b981", "Low", "info"),
+    );
 
-    // Handle component unmount logic properly on client
     newSocket.on("disconnect", () => {
       console.log("Disconnected from WebSocket Server");
       set({ isConnected: false });
@@ -64,19 +103,21 @@ const useAegisStore = create((set, get) => ({
   dispatchAsset: (assetId, targetSectorId) => {
     set((state) => {
       const updatedAssets = state.assets.map((a) =>
-        a.id === assetId ? { ...a, status: "BUSY", sectorId: targetSectorId } : a
+        a.id === assetId
+          ? { ...a, status: "BUSY", sectorId: targetSectorId }
+          : a,
       );
 
       const newAlert = {
         id: Date.now(),
         message: `Dispatched Unit #${assetId} to SEC-0${targetSectorId}`,
         time: new Date().toISOString(),
-        type: "success"
+        type: "success",
       };
 
       return { assets: updatedAssets, alerts: [newAlert, ...state.alerts] };
     });
-  }
+  },
 }));
 
 export default useAegisStore;
