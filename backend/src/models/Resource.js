@@ -4,7 +4,7 @@ const ResourceSchema = new mongoose.Schema({
   type: {
     type: String,
     required: true,
-    enum: ['Ambulance', 'Helicopter', 'FireTruck']
+    enum: ['Ambulance', 'Helicopter', 'FireTruck', 'PoliceJeep']
   },
   location: {
     lat: { type: Number, required: true },

@@ -24,7 +24,7 @@ const AlertLog = () => {
   };
 
   return (
-    <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-4 shadow-xl text-slate-200 h-full flex flex-col font-exo">
+    <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-4 shadow-xl text-slate-200 h-full flex flex-col font-exo overflow-hidden">
       <h2 className="text-lg font-bold mb-3 flex items-center border-b border-slate-700/50 pb-3 text-white font-rajdhani tracking-wider">
         <Activity className="w-4 h-4 mr-2 text-emerald-400 animate-pulse" />
         Live Intel Feed

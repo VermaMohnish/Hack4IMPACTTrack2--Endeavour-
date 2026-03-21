@@ -7,6 +7,7 @@ const useAegisStore = create((set, get) => ({
   assets: MOCK_ASSETS,
   alerts: MOCK_ALERTS,
   socket: null,
+  isConnected: false,
 
   initSocket: () => {
     if (get().socket) return; // Prevent multiple connections
@@ -22,37 +23,41 @@ const useAegisStore = create((set, get) => ({
 
     newSocket.on("connect", () => {
       console.log("Connected to WebSocket Server");
+      set({ isConnected: true });
     });
 
-    newSocket.on("Critical", (data) => {
-      // Map the backend's sector_id properly to highlight zones
+    const handleSignal = (severity, data, color, riskLabel, alertType) => {
       if (data && data.sector_id) {
         set((state) => {
           const updatedSectors = state.sectors.map((s) =>
-            s.id === data.sector_id
-              ? { ...s, risk: "High", color: "#ef4444" }
-              : s
+            s.id === data.sector_id ? { ...s, risk: riskLabel, color: color } : s
           );
           
           const newAlert = {
             id: Date.now(),
-            message: data.message || `Critical Risk in Sector ${data.sector_id}`,
+            message: data.message || `${severity} condition in Sector ${data.sector_id}`,
             time: new Date().toISOString(),
-            type: "critical"
+            type: alertType
           };
 
-          return { sectors: updatedSectors, alerts: [newAlert, ...state.alerts] };
+          return { sectors: updatedSectors, alerts: [newAlert, ...state.alerts].slice(0, 50) };
         });
       }
-    });
+    };
+
+    newSocket.on("Critical", (data) => handleSignal("Critical", data, "#ef4444", "High", "critical"));
+    newSocket.on("Warning",  (data) => handleSignal("Warning", data, "#eab308", "Warning", "warning"));
+    newSocket.on("Stable",   (data) => handleSignal("Stable", data, "#10b981", "Low", "info"));
 
     // Handle component unmount logic properly on client
     newSocket.on("disconnect", () => {
       console.log("Disconnected from WebSocket Server");
+      set({ isConnected: false });
     });
 
     newSocket.on("connect_error", (err) => {
       console.error("Socket connection error:", err.message);
+      set({ isConnected: false });
     });
   },
 
