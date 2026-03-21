@@ -1,5 +1,12 @@
-flask
-requests
+Flask
+flask-cors
+gunicorn
+numpy
 pandas
+scikit-learn
+scipy
 joblib
+requests
+python-dotenv
+pymongo
 xgboost
