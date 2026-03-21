@@ -94,9 +94,19 @@ def _process_csv():
         place_name = row_dict.get("place_name") or row_dict.get("location") or f"Row {idx}"
 
         # Map to backend's required structure
-        signal = "Critical" if result["disaster_severity"] >= 70 else "Normal"
+        if result["disaster_severity"] > 70:
+            signal = "Critical"
+        elif result["disaster_severity"] >= 45:
+            signal = "Warning"
+        else:
+            signal = "Stable"
         sector_id = (int(idx) % 5) + 1  # Distribute across sectors 1 to 5 dynamically
-        message = f"[{result['disaster_type']}] Risk ({result['disaster_severity']}/100) detected at {place_name}."
+        
+        # Area mapping for cleaner alerts
+        area_names = {1: "Patia", 2: "Nayapalli", 3: "Old Town", 4: "Rasulgarh", 5: "Khandagiri"}
+        area_name = area_names.get(sector_id, "Unknown Area")
+        
+        message = f"[{result['disaster_type']}] Risk ({result['disaster_severity']}/100) detected in {area_name}."
 
         payload = {
             "place_name":         place_name,
@@ -129,7 +139,7 @@ def _process_csv():
             _state["errors"].append({"row_index": int(idx), "error": f"Unexpected error: {str(e)}"})
 
         _state["processed"] += 1
-        time.sleep(1)
+        time.sleep(5)
 
     _state["running"] = False
     _state["done"]    = True

@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { MapContainer, TileLayer, Circle, Popup, Tooltip, GeoJSON } from "react-leaflet";
+import { MapContainer, TileLayer, Circle, Popup, Tooltip, GeoJSON, ZoomControl } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import useAegisStore from "../store/useAegisStore";
 import L from "leaflet";
@@ -22,11 +22,13 @@ const SectorMap = () => {
       <div className="absolute top-4 left-4 z-[400] bg-military-900/90 text-white p-2 rounded max-w-xs text-xs pointer-events-none border border-military-700 backdrop-blur-sm font-exo">
         <h3 className="font-bold mb-1 text-sm bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-military-green font-rajdhani">Map Legend</h3>
         <div className="flex items-center mt-1"><span className="w-3 h-3 rounded bg-military-green mr-2 opacity-80 border border-military-green/50"></span> Stable Zone</div>
+        <div className="flex items-center mt-1"><span className="w-3 h-3 rounded bg-yellow-500 mr-2 opacity-80 border border-yellow-500/50"></span> Warning Zone</div>
         <div className="flex items-center mt-1"><span className="w-3 h-3 rounded bg-red-500 mr-2 opacity-80 border border-red-500/50"></span> Critical Zone</div>
       </div>
 
       <div className="rounded-lg overflow-hidden flex-1 z-0 w-full h-full min-h-[400px]">
-        <MapContainer center={center} zoom={11} className="w-full h-full bg-military-800">
+        <MapContainer center={center} zoom={11} className="w-full h-full bg-military-800" scrollWheelZoom={false} zoomControl={false}>
+          <ZoomControl position="topright" />
           {/* Base imagery: Esri Satellite for rich color */}
           <TileLayer
             attribution='&copy; <a href="https://www.esri.com/">Esri</a>'
@@ -57,9 +59,9 @@ const SectorMap = () => {
               center={sector.coords}
               radius={sector.radius}
               pathOptions={{
-                color: sector.risk === "High" ? "#ef4444" : "#2ecc71",
-                fillColor: sector.risk === "High" ? "#ef4444" : "#2ecc71",
-                fillOpacity: sector.risk === "High" ? 0.4 : 0.2,
+                color: sector.color,
+                fillColor: sector.color,
+                fillOpacity: sector.risk === "High" ? 0.4 : (sector.risk === "Warning" ? 0.3 : 0.2),
                 weight: 2
               }}
             >
@@ -69,7 +71,7 @@ const SectorMap = () => {
               <Popup className="bg-military-900 text-slate-800 border-military-700">
                 <div className="font-exo">
                   <h3 className="font-bold text-sm mb-1 text-white">{sector.name}</h3>
-                  <p className="text-xs text-slate-300">Status: <span className={sector.risk === "High" ? "text-red-500 font-bold" : "text-military-green font-bold"}>{sector.risk}</span></p>
+                  <p className="text-xs text-slate-300">Status: <span style={{ color: sector.color }} className="font-bold">{sector.risk}</span></p>
                 </div>
               </Popup>
             </Circle>

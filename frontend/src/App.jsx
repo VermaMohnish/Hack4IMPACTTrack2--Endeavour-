@@ -16,31 +16,37 @@ function App() {
 
   return (
     <>
-      <div className="h-screen w-screen overflow-hidden bg-slate-950 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black text-slate-200 flex flex-col font-exo selection:bg-blue-500/30">
-        <Topbar />
+      <div className="min-h-screen w-full bg-slate-950 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black text-slate-200 flex flex-col font-exo selection:bg-blue-500/30 overflow-x-hidden">
+        <div className="sticky top-0 z-[9999] shadow-2xl">
+          <Topbar />
+        </div>
         
-        <main className="flex-1 p-4 grid grid-cols-1 lg:grid-cols-12 gap-5 h-[calc(100vh-73px)]">
+        <main className="flex-1 p-4 space-y-8 max-w-[1600px] mx-auto w-full pb-16">
           
-          {/* Left Navigation Context (Map) */}
-          <div className="lg:col-span-7 xl:col-span-8 h-full min-h-[400px] rounded-2xl overflow-hidden border border-slate-700/50 shadow-2xl relative">
+          {/* Section 1: Map (Page 1) */}
+          <div className="w-full h-[calc(100vh-100px)] min-h-[600px] rounded-2xl overflow-hidden border border-slate-700/50 shadow-[0_0_50px_rgba(0,0,0,0.5)] relative">
              <div className="absolute top-0 left-0 w-full h-16 bg-gradient-to-b from-black/60 to-transparent z-[400] pointer-events-none"></div>
              <SectorMap />
              <div className="absolute bottom-0 left-0 w-full h-16 bg-gradient-to-t from-black/60 to-transparent z-[400] pointer-events-none"></div>
           </div>
 
-          {/* Right Metrics Panel */}
-          <div className="lg:col-span-5 xl:col-span-4 h-full flex flex-col gap-4 overflow-hidden">
-            <div className="flex-[4] min-h-0">
+          {/* Section 2: Sector Intelligence & Live Feed (Page 2) */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 h-[800px]">
+            <div className="h-full relative group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-3xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
               <SectorPanel />
             </div>
             
-            <div className="flex-[3] min-h-0">
+            <div className="h-full relative group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-rose-600 to-orange-600 rounded-3xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
               <AlertLog />
             </div>
+          </div>
 
-            <div className="flex-[3] min-h-0">
-              <AssetTracker />
-            </div>
+          {/* Section 3: Live Asset Telemetry (Page 3) */}
+          <div className="h-[700px] relative group w-full">
+            <div className="absolute -inset-1 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-3xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+            <AssetTracker />
           </div>
 
         </main>

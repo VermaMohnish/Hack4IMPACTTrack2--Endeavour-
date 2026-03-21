@@ -75,12 +75,14 @@ const SectorPanel = () => {
               } ${
                 sector.risk === "High" 
                   ? "bg-red-950/30 border-red-500/50 shadow-red-900/20" 
-                  : "bg-slate-800/40 border-slate-700/50 hover:border-blue-500/50"
+                  : sector.risk === "Warning"
+                    ? "bg-yellow-950/30 border-yellow-500/50 shadow-yellow-900/20"
+                    : "bg-slate-800/40 border-slate-700/50 hover:border-blue-500/50"
               }`}
             >
               <div className="flex justify-between items-center mb-3">
                 <div className="flex items-center gap-2">
-                  <div className={`w-2 h-2 rounded-full shadow-[0_0_8px_rgba(0,0,0,0.5)] ${sector.risk === "High" ? "bg-red-500 shadow-red-500 animate-pulse" : "bg-emerald-500 shadow-emerald-500"}`}></div>
+                  <div className={`w-2 h-2 rounded-full shadow-[0_0_8px_rgba(0,0,0,0.5)] ${sector.risk === "High" ? "bg-red-500 shadow-red-500 animate-pulse" : sector.risk === "Warning" ? "bg-yellow-500 shadow-yellow-500 animate-pulse" : "bg-emerald-500 shadow-emerald-500"}`}></div>
                   <h3 className="font-bold text-white text-md font-rajdhani tracking-wide">{sector.name}</h3>
                   <span className="text-[10px] text-slate-500 font-share font-bold ml-1">SEC-0{sector.id}</span>
                 </div>

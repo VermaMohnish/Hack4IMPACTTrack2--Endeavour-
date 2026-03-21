@@ -1,21 +1,20 @@
 import { getIO } from '../services/socketService.js';
 
 export const processFlaskSignal = (req, res) => {
-  // Expected Payload: { signal: "Critical", sector_id: 1, message: "Flood detected" }
   const { signal, sector_id, message } = req.body;
   
-  if (signal === "Critical" && sector_id) {
-    console.log(`--> Received [CRITICAL] Webhook from Flask for Sector ${sector_id}. Dispatching over Sockets.`);
+  if (['Critical', 'Warning', 'Stable'].includes(signal) && sector_id) {
+    console.log(`--> Received [${signal}] Webhook from Flask for Sector ${sector_id}. Dispatching over Sockets.`);
     
     const io = getIO();
-    io.emit('Critical', { 
+    io.emit(signal, { 
       sector_id: parseInt(sector_id), 
-      message: message || `Critical Risk Level detected in Sector ${sector_id}` 
+      message: message || `${signal} Risk Level detected in Sector ${sector_id}` 
     });
     
-    return res.status(200).json({ success: true, message: 'Critical signal relayed to frontend UI.' });
+    return res.status(200).json({ success: true, message: `${signal} signal relayed to frontend UI.` });
   }
 
-  // If not critical, just return 200 so Flask doesn't complain
+  // If signal is unknown, just return 200 so Flask doesn't complain
   res.status(200).json({ success: true, message: 'Signal ignored.' });
 };

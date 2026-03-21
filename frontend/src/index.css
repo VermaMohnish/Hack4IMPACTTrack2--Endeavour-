@@ -21,6 +21,12 @@
   }
 }
 
+/* Custom Scrollbar for all browsers */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #64748b transparent; /* thumb color | track color */
+}
+
 /* Custom Webkit Scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
@@ -29,11 +35,11 @@
   background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #334155;
+  background-color: #64748b; /* Brighter thumb for visibility */
   border-radius: 10px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background-color: #475569;
+  background-color: #94a3b8;
 }
 
 /* Leaflet Map overrides for dark theme */
