@@ -1,8 +1,9 @@
 import React, { useEffect } from "react";
-import { MapContainer, TileLayer, Circle, Popup, Tooltip } from "react-leaflet";
+import { MapContainer, TileLayer, Circle, Popup, Tooltip, GeoJSON } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import useAegisStore from "../store/useAegisStore";
 import L from "leaflet";
+import bhubaneswarBoundary from "../data/bhubaneswar.json";
 
 // Fix for default Leaflet icon paths in React
 delete L.Icon.Default.prototype._getIconUrl;
@@ -34,6 +35,20 @@ const SectorMap = () => {
           {/* Overlay: CartoDB Labels to bring back street and city names */}
           <TileLayer
             url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png"
+          />
+
+          {/* Bhubaneswar Border */}
+          <GeoJSON
+            data={bhubaneswarBoundary}
+            interactive={false}
+            style={{
+              color: "#efe144ff",
+              weight: 2,
+              fillColor: "transparent",
+              fillOpacity: 0,
+              opacity: 1,
+              dashArray: "4, 6"
+            }}
           />
 
           {sectors.map((sector) => (
