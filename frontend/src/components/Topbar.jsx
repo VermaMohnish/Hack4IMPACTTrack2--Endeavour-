@@ -11,11 +11,13 @@ import {
   X,
   PlayCircle,
   PauseCircle,
+  Sparkles,
 } from "lucide-react";
 import useAegisStore from "../store/useAegisStore";
 
 const Topbar = () => {
-  const { alerts, isConnected, isRunning, toggleRunning } = useAegisStore();
+  const { alerts, isConnected, isRunning, toggleRunning, triggerML } = useAegisStore();
+  const [isTriggering, setIsTriggering] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [readCount, setReadCount] = useState(0);
   const panelRef = useRef(null);
@@ -114,6 +116,20 @@ const Topbar = () => {
               <span className="hidden sm:inline">RESUME</span>
             </>
           )}
+        </button>
+
+        {/* NEW: ML Prediction Trigger Button */}
+        <button
+          onClick={async () => {
+            setIsTriggering(true);
+            await triggerML();
+            setTimeout(() => setIsTriggering(false), 2000);
+          }}
+          disabled={isTriggering || !isConnected}
+          className={`flex items-center gap-2 px-4 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 font-bold text-xs tracking-wider transition-all duration-300 shadow-lg font-rajdhani hover:bg-emerald-500 hover:text-white group disabled:opacity-50 disabled:cursor-not-allowed`}
+        >
+          <Sparkles className={`w-3.5 h-3.5 ${isTriggering ? 'animate-spin' : 'group-hover:animate-pulse'}`} />
+          {isTriggering ? "STARTING..." : "PREDICT"}
         </button>
 
         {/* Dynamic Socket Status Badge */}
