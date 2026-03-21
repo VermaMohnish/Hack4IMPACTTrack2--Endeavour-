@@ -7,6 +7,7 @@ const useAegisStore = create((set, get) => ({
   assets: MOCK_ASSETS,
   alerts: MOCK_ALERTS,
   socket: null,
+  isConnected: false,
 
   initSocket: () => {
     if (get().socket) return; // Prevent multiple connections
@@ -22,6 +23,7 @@ const useAegisStore = create((set, get) => ({
 
     newSocket.on("connect", () => {
       console.log("Connected to WebSocket Server");
+      set({ isConnected: true });
     });
 
     newSocket.on("Critical", (data) => {
@@ -41,7 +43,7 @@ const useAegisStore = create((set, get) => ({
             type: "critical"
           };
 
-          return { sectors: updatedSectors, alerts: [newAlert, ...state.alerts] };
+          return { sectors: updatedSectors, alerts: [newAlert, ...state.alerts].slice(0, 50) };
         });
       }
     });
@@ -49,10 +51,12 @@ const useAegisStore = create((set, get) => ({
     // Handle component unmount logic properly on client
     newSocket.on("disconnect", () => {
       console.log("Disconnected from WebSocket Server");
+      set({ isConnected: false });
     });
 
     newSocket.on("connect_error", (err) => {
       console.error("Socket connection error:", err.message);
+      set({ isConnected: false });
     });
   },
 

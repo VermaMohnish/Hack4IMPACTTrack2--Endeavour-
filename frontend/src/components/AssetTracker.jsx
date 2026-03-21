@@ -1,6 +1,6 @@
 import React from "react";
 import useAegisStore from "../store/useAegisStore";
-import { Truck, Crosshair, Navigation, Activity } from "lucide-react";
+import { Truck, Crosshair, Navigation, Activity, Shield, PlusSquare } from "lucide-react";
 
 const AssetTracker = () => {
   const { assets } = useAegisStore();
@@ -36,7 +36,10 @@ const AssetTracker = () => {
               <tr key={asset.id} className="hover:bg-slate-800/30 transition-colors group">
                 <td className="px-3 py-2.5 font-share font-bold text-slate-300 text-xs">#{asset.id}</td>
                 <td className="px-3 py-2.5 flex items-center text-[11px] font-bold text-slate-200 uppercase tracking-wide">
-                  {asset.type === 'Helicopter' ? <Navigation className="w-3 h-3 mr-2 text-blue-400" /> : <Truck className="w-3 h-3 mr-2 text-orange-400" />} 
+                  {asset.type === 'Helicopter' && <Navigation className="w-3 h-3 mr-2 text-emerald-400" />}
+                  {asset.type === 'PoliceJeep' && <Shield className="w-3 h-3 mr-2 text-blue-400" />}
+                  {asset.type === 'Ambulance' && <PlusSquare className="w-3 h-3 mr-2 text-rose-400" />}
+                  {asset.type === 'FireTruck' && <Truck className="w-3 h-3 mr-2 text-orange-400" />}
                   {asset.type}
                 </td>
                 <td className="px-3 py-2.5 font-share text-slate-400 text-[11px] text-center">
