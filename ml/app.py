@@ -25,6 +25,8 @@ USAGE
        GET http://localhost:5000/status
 """
 
+import os
+import time
 from flask import Flask, jsonify
 import requests
 import pandas as pd
@@ -34,7 +36,7 @@ from pipeline import predict
 app = Flask(__name__)
 
 # ── Config ────────────────────────────────────────────────────────────────────
-NODE_BACKEND_URL = "http://localhost:3000/api/prediction"   # ← your friend's URL
+NODE_BACKEND_URL = os.getenv("NODE_BACKEND_URL", "http://localhost:3000/api/flask-webhook")   # ← your backend URL
 CSV_PATH         = "aegisgrid_final_dataset.csv"            # ← your CSV file path
 
 # ── State tracker (shared across threads) ────────────────────────────────────
@@ -91,11 +93,19 @@ def _process_csv():
         # Use place_name from CSV if it exists, otherwise fall back to row index
         place_name = row_dict.get("place_name") or row_dict.get("location") or f"Row {idx}"
 
+        # Map to backend's required structure
+        signal = "Critical" if result["disaster_severity"] >= 70 else "Normal"
+        sector_id = (int(idx) % 5) + 1  # Distribute across sectors 1 to 5 dynamically
+        message = f"[{result['disaster_type']}] Risk ({result['disaster_severity']}/100) detected at {place_name}."
+
         payload = {
             "place_name":         place_name,
             "disaster_type":      result["disaster_type"],
             "disaster_severity":  result["disaster_severity"],
             "type_probabilities": result["type_probabilities"],
+            "signal":             signal,
+            "sector_id":          sector_id,
+            "message":            message
         }
 
         # ── Forward to Node.js ────────────────────────────────────────────
@@ -119,6 +129,7 @@ def _process_csv():
             _state["errors"].append({"row_index": int(idx), "error": f"Unexpected error: {str(e)}"})
 
         _state["processed"] += 1
+        time.sleep(1)
 
     _state["running"] = False
     _state["done"]    = True

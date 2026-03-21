@@ -16,5 +16,6 @@ export const processFlaskSignal = (req, res) => {
     return res.status(200).json({ success: true, message: 'Critical signal relayed to frontend UI.' });
   }
 
-  res.status(400).json({ success: false, message: 'Invalid payload.' });
+  // If not critical, just return 200 so Flask doesn't complain
+  res.status(200).json({ success: true, message: 'Signal ignored.' });
 };

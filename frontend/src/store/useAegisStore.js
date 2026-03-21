@@ -11,9 +11,11 @@ const useAegisStore = create((set, get) => ({
   initSocket: () => {
     if (get().socket) return; // Prevent multiple connections
 
-    const newSocket = io("http://localhost:3000", {
-      reconnectionAttempts: 3,
-      timeout: 2000,
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+    const newSocket = io(backendUrl, {
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 2000,
+      timeout: 20000,
     });
 
     set({ socket: newSocket });
@@ -47,6 +49,10 @@ const useAegisStore = create((set, get) => ({
     // Handle component unmount logic properly on client
     newSocket.on("disconnect", () => {
       console.log("Disconnected from WebSocket Server");
+    });
+
+    newSocket.on("connect_error", (err) => {
+      console.error("Socket connection error:", err.message);
     });
   },
 
